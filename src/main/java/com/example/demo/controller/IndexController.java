@@ -18,8 +18,8 @@ public class IndexController {
         return "index";
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String login() {
+    @RequestMapping(value = "/form", method = RequestMethod.GET)
+    public String form() {
         return "login";
     }
 

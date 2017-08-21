@@ -7,8 +7,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
@@ -17,9 +19,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Autowired
-    private UserDetailsService userDetailsService;
 
     @Autowired
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
@@ -36,15 +35,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
+    @Autowired
+    private CustomCsrfHeaderFilter customCsrfHeaderFilter;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        CustomAuthenticationProcessingFilter statelessLoginFilter = new CustomAuthenticationProcessingFilter("/login", customAuthenticationProvider);
+        statelessLoginFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
+        statelessLoginFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
+
         http
             .csrf().disable()
                 .headers().frameOptions().disable().and()
                 .authorizeRequests()
-                .antMatchers("/css/**", "/js/**", "/fonts/**", "/index", "/login", "/auth/**", "/auth/me").permitAll()
+                .antMatchers("/css/**", "/js/**", "/fonts/**", "/index", "/form", "/login", "/auth/**").permitAll()
                 .antMatchers("/user/**").hasRole("USER")
                 .antMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
             .and()
                 .formLogin()
                 .loginProcessingUrl("/login")
@@ -61,17 +68,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessHandler(customLogoutSuccessHandler)
             .and()
-                .httpBasic()
+                .csrf().csrfTokenRepository(csrfTokenRepository())
             .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .addFilterBefore(statelessLoginFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(customCsrfHeaderFilter, SessionManagementFilter.class);
 
-        http.headers().frameOptions().sameOrigin();
     }
-
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
+        auth.authenticationProvider(customAuthenticationProvider);
     }
 
+    private CsrfTokenRepository csrfTokenRepository() {
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        repository.setHeaderName("X-XSRF-TOKEN");
+        return repository;
+    }
 }
