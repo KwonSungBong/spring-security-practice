@@ -1,17 +1,18 @@
 package com.example.demo.config;
 
+import com.example.demo.jwt.JwtAuthenticationEntryPoint;
+import com.example.demo.jwt.JwtAuthenticationTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * Created by ksb on 2017. 8. 19..
@@ -21,61 +22,36 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private UserDetailsService userDetailsService;
 
     @Autowired
-    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-
-    @Autowired
-    private CustomLogoutSuccessHandler customLogoutSuccessHandler;
-
-    @Autowired
-    private AuthenticationProvider customAuthenticationProvider;
-
-    @Autowired
-    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-
-    @Autowired
-    private CustomCsrfHeaderFilter customCsrfHeaderFilter;
+    private JwtAuthenticationEntryPoint unauthorizedHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        CustomAuthenticationProcessingFilter statelessLoginFilter = new CustomAuthenticationProcessingFilter("/login", customAuthenticationProvider);
-        statelessLoginFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
-        statelessLoginFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
-
         http
             .csrf().disable()
-                .headers().frameOptions().disable().and()
+                .exceptionHandling()
+                .authenticationEntryPoint(unauthorizedHandler)
+            .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
                 .authorizeRequests()
-                .antMatchers("/css/**", "/js/**", "/fonts/**", "/index", "/form", "/login", "/auth/**").permitAll()
-                .antMatchers("/user/**").hasRole("USER")
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/*.html", "/**/*.html", "/**/*.css", "/**/*.js",
+                        "/css/**", "/js/**", "/fonts/**", "/index", "/form", "/login", "/auth/**").permitAll()
                 .anyRequest().authenticated()
             .and()
-                .authenticationProvider(customAuthenticationProvider)
-                .exceptionHandling()
-                .authenticationEntryPoint(customAuthenticationEntryPoint)
-            .and()
-                .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessHandler(customLogoutSuccessHandler)
-            .and()
-                .csrf().csrfTokenRepository(csrfTokenRepository())
-            .and()
-                .addFilterBefore(statelessLoginFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(customCsrfHeaderFilter, SessionManagementFilter.class);
-
+                .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(customAuthenticationProvider);
+    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+        authenticationManagerBuilder
+                .userDetailsService(this.userDetailsService);
     }
 
-    private CsrfTokenRepository csrfTokenRepository() {
-        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-        repository.setHeaderName("X-XSRF-TOKEN");
-        return repository;
+    @Bean
+    public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
+        return new JwtAuthenticationTokenFilter();
     }
 }
