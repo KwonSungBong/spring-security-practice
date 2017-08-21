@@ -6,5 +6,55 @@
 </head>
 <body>
     login
+    <button onclick="login()">login</button>
+    <button onclick="logout()">logout</button>
+    <button onclick="me()">me</button>
+    <button onclick="test()">test</button>
+
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+    <script>
+        function login(){
+            $.ajax({
+                url : "/login",
+                type : "post",
+                async : false,
+                data : {username:'user',password:'password'},
+//                contentType: 'application/json',
+                dataType:"json"
+            }).done(function(response){
+                console.log(response);
+            });
+        }
+
+        function logout(){
+            $.ajax({
+                url : "/logout",
+                type : "post",
+                async : false,
+            }).done(function(response){
+                console.log(response);
+            });
+        }
+
+        function me(){
+            $.ajax({
+                url : "/auth/me",
+                type : "post",
+                async : false,
+            }).done(function(response){
+                console.log(response);
+            });
+        }
+
+        function test(){
+            $.ajax({
+                url : "/auth/test",
+                type : "get",
+                async : false,
+            }).done(function(response){
+                console.log(response);
+            });
+        }
+    </script>
 </body>
 </html>
