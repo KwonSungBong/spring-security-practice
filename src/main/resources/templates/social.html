@@ -6,22 +6,27 @@
 </head>
 <body>
     social
-    <!--<button onclick="token()">token</button>-->
-    <!--<button onclick="login()">login</button>-->
-    <!--<button onclick="logout()">logout</button>-->
-    <!--<button onclick="me()">me</button>-->
-    <!--<button onclick="test()">test</button>-->
-
-    <button onclick="llll()">llll</button>
+    <button onclick="login()">login</button>
     <button onclick="me()">me</button>
+    <button onclick="logout()">logout</button>
+    <button onclick="token()">token</button>
 
     <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
     <script>
-        // 1. token
-        // 2. login
-        // 3. me
+        var token;
 
-        function llll() {
+        function token(){
+            $.ajax({
+                url : "/auth/token",
+                type : "get",
+                async : false,
+            }).done(function(response){
+                console.log(response);
+                token = response.token;
+            });
+        }
+
+        function login() {
             var secUrl = 'http://localhost:3001/auth/facebook';
             window.open(secUrl);
         }
@@ -31,23 +36,6 @@
                 url : "/auth/me",
                 type : "get",
                 async : false,
-            }).done(function(response){
-                console.log(response);
-            });
-        }
-
-        /*var token;
-
-        function login(){
-            console.log("token", token);
-            $.ajax({
-                url : "/login",
-                type : "post",
-                async : false,
-                beforeSend: function(request) {
-                    request.setRequestHeader('X-XSRF-TOKEN', token);
-                },
-                data : {username:'user',password:'password'},
             }).done(function(response){
                 console.log(response);
             });
@@ -65,37 +53,6 @@
                 console.log(response);
             });
         }
-
-        function token(){
-            $.ajax({
-                url : "/auth/token",
-                type : "get",
-                async : false,
-            }).done(function(response){
-                console.log(response);
-                token = response.token;
-            });
-        }
-
-        function me(){
-            $.ajax({
-                url : "/auth/me",
-                type : "get",
-                async : false,
-            }).done(function(response){
-                console.log(response);
-            });
-        }
-
-        function test(){
-            $.ajax({
-                url : "/auth/test",
-                type : "get",
-                async : false,
-            }).done(function(response){
-                console.log(response);
-            });
-        }*/
     </script>
 </body>
 </html>

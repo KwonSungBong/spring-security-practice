@@ -52,7 +52,6 @@ public class CustomSocialUsersConnectionRepository implements UsersConnectionRep
 
     @Override
     public ConnectionRepository createConnectionRepository(String userId) {
-        userId="test";
         final ConnectionRepository connectionRepository = new CustomJdbcConnectionRepository(userId, connectionFactoryLocator, userDetailService);
         final User user = userDetailService.findByUserId(userId);
         final ConnectionData connectionData = new ConnectionData(

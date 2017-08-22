@@ -71,6 +71,6 @@ public class SecurityUser extends User implements SocialUserDetails
 
     @Override
     public String getUserId() {
-        return null;
+        return ((com.example.demo.entity.User)getUser()).getUsername();
     }
 }
