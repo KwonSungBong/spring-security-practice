@@ -1,8 +1,10 @@
-package com.example.demo.config;
+package com.example.demo.config.security;
 
 
+import com.example.demo.config.SecurityUser;
+import com.example.demo.config.social.CustomSocialAndUserDetailService;
 import com.example.demo.entity.User;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.api.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -10,6 +12,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-//    @Autowired
-//    private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CustomSocialAndUserDetailService userDetailsService;
 
     @Override
     public boolean supports(Class<?> authentication) {
@@ -44,7 +50,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 //            throw new BadCredentialsException("사용자 정보가 없습니다.");
 //        }
 
-        return new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), user.getId(), user.getAuthorities());
+        SecurityUser securityUser = (SecurityUser) userDetailsService.loadUserById(user.getId());
+
+        return new UsernamePasswordAuthenticationToken(securityUser, user.getId(), securityUser.getAuthorities());
     }
 
 }

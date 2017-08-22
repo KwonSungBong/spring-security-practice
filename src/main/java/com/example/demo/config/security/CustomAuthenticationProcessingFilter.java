@@ -1,4 +1,4 @@
-package com.example.demo.config;
+package com.example.demo.config.security;
 
 import com.example.demo.entity.User;
 import lombok.extern.slf4j.Slf4j;
