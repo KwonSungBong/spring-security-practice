@@ -1,8 +1,9 @@
 package com.example.demo.config;
 
-import com.example.demo.config.security.*;
+import com.example.demo.component.security.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +14,8 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.social.security.SocialAuthenticationFilter;
+import org.springframework.social.security.SpringSocialConfigurer;
 
 /**
  * Created by ksb on 2017. 8. 19..
@@ -45,9 +48,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         statelessLoginFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
         statelessLoginFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
 
+        final SpringSocialConfigurer socialConfigurer = new SpringSocialConfigurer();
+        socialConfigurer.addObjectPostProcessor(new ObjectPostProcessor<SocialAuthenticationFilter>() {
+            @Override
+            public <O extends SocialAuthenticationFilter> O postProcess(O socialAuthenticationFilter) {
+                socialAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
+                return socialAuthenticationFilter;
+            }
+        });
+
         http
             .csrf().disable()
-                .headers().frameOptions().disable().and()
                 .authorizeRequests()
                 .antMatchers("/css/**", "/js/**", "/fonts/**", "/index", "/form", "/login", "/auth/**").permitAll()
                 .antMatchers("/user/**").hasRole("USER")
@@ -64,9 +75,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
                 .csrf().csrfTokenRepository(csrfTokenRepository())
             .and()
+                .apply(socialConfigurer)
+            .and()
                 .addFilterBefore(statelessLoginFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(customCsrfHeaderFilter, SessionManagementFilter.class);
-
     }
 
     @Autowired

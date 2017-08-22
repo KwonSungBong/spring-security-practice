@@ -1,4 +1,4 @@
-package com.example.demo.config;
+package com.example.demo.dto;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -9,8 +9,7 @@ import java.util.Collection;
 /**
  * Created by whilemouse on 17. 8. 22.
  */
-public class SecurityUser extends User
-//        implements SocialUserDetails
+public class SecurityUser extends User implements SocialUserDetails
 {
     public SecurityUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);
@@ -70,8 +69,8 @@ public class SecurityUser extends User
         return false;
     }
 
-//    @Override
-//    public String getUserId() {
-//        return null;
-//    }
+    @Override
+    public String getUserId() {
+        return null;
+    }
 }

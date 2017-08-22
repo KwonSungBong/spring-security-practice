@@ -1,8 +1,9 @@
-package com.example.demo.config.social.impl;
+package com.example.demo.component.social.impl;
 
-import com.example.demo.api.repository.UserRepository;
-import com.example.demo.config.SecurityUser;
-import com.example.demo.config.social.CustomSocialAndUserDetailService;
+import com.example.demo.entity.constant.SocialProvider;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.dto.SecurityUser;
+import com.example.demo.component.social.CustomSocialAndUserDetailService;
 import com.example.demo.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +11,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.social.connect.ConnectionKey;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
 /**
  * Created by whilemouse on 17. 8. 22.
  */
@@ -30,7 +31,7 @@ public class CustomSocialAndUserDetailServiceImpl implements CustomSocialAndUser
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public SecurityUser loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
 
         if(user == null){
@@ -49,7 +50,10 @@ public class CustomSocialAndUserDetailServiceImpl implements CustomSocialAndUser
 //                user.isEnabled(),
 //                user.isEnabled(),
 //                user.isEnabled(),
-                true,true,true,true,
+                true,
+                true,
+                true,
+                true,
                 authorities,
                 user
         );
@@ -61,22 +65,26 @@ public class CustomSocialAndUserDetailServiceImpl implements CustomSocialAndUser
         return loadUserByUsername(user.getUsername());
     }
 
-//    @Override
-//    public User loadUserByConnectionKey(ConnectionKey connectionKey) {
-//        User user = userDAO.findByUserSocial_ProviderIdAndUserSocial_ProviderUserId(SocialProvider.valueOf(connectionKey.getProviderId()), connectionKey.getProviderUserId());
-//        return checkUser(user);
-//    }
+    @Override
+    public User loadUserByConnectionKey(ConnectionKey connectionKey) {
+        User user = userRepository.findBySocialUser_ProviderIdAndSocialUser_ProviderUserId(SocialProvider.valueOf(connectionKey.getProviderId()), connectionKey.getProviderUserId());
+        return checkUser(user);
+    }
 
-//    @Override
-//    public void updateUserSocial(User user) {
-//        userDAO.saveAndFlush(user);
-//    }
+    @Override
+    public void updateUserSocial(User user) {
+        userRepository.saveAndFlush(user);
+    }
 
-//    @Override
-//    public SocialUserDetails loadUserByUserId(String uniqueId) throws UsernameNotFoundException {
-//        log.debug("SOCIAL USER ID : {}", uniqueId);
-//        return loadUserByUsername(uniqueId);
-//    }
+    @Override
+    public User findByUserId(String userId) {
+        return userRepository.findByUsername(userId);
+    }
+
+    @Override
+    public SocialUserDetails loadUserByUserId(String username) throws UsernameNotFoundException {
+        return loadUserByUsername(username);
+    }
 
     private User checkUser(User user){
         if(user == null)

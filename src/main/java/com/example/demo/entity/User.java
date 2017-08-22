@@ -31,4 +31,7 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "authority_id", referencedColumnName = "id"))
     private List<Authority> authorities;
 
+    @OneToOne(fetch = FetchType.EAGER, mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private SocialUser socialUser;
+
 }

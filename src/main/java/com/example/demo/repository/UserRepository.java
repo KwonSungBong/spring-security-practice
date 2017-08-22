@@ -1,6 +1,7 @@
-package com.example.demo.api.repository;
+package com.example.demo.repository;
 
 import com.example.demo.entity.User;
+import com.example.demo.entity.constant.SocialProvider;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -8,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByUsername(String username);
+    User findBySocialUser_ProviderIdAndSocialUser_ProviderUserId(SocialProvider providerId, String providerUserId);
 }

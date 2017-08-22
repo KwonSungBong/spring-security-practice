@@ -1,10 +1,10 @@
-package com.example.demo.config.security;
+package com.example.demo.component.security;
 
 
-import com.example.demo.config.SecurityUser;
-import com.example.demo.config.social.CustomSocialAndUserDetailService;
+import com.example.demo.dto.SecurityUser;
+import com.example.demo.component.social.CustomSocialAndUserDetailService;
 import com.example.demo.entity.User;
-import com.example.demo.api.repository.UserRepository;
+import com.example.demo.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
