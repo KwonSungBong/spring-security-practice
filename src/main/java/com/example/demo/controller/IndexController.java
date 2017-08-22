@@ -23,4 +23,9 @@ public class IndexController {
         return "login";
     }
 
+    @RequestMapping(value = "/social", method = RequestMethod.GET)
+    public String social() {
+        return "social";
+    }
+
 }

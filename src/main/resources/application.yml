@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: 3001
   contextPath: /
   session:
     timeout: 60
@@ -20,8 +20,8 @@ spring:
 
   social:
     facebook:
-      app-id: 168725713662603
-      app-secret: fdf1fee004df10cd3a00adb949e16e5a
+      app-id: 947364928657500
+      app-secret: 064dff91442a5da607d337df43748e9d
     kakao:
       app-id: 5d657efdb44563718081262c440e74e1
     naver:

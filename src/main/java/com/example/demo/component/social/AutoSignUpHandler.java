@@ -39,7 +39,9 @@ public class AutoSignUpHandler implements ConnectionSignUp
 
         UserProfile userProfile = connection.fetchUserProfile();
 
-        user.setUsername(userProfile.getFirstName() + ' ' + (userProfile.getLastName() == null ? "" : userProfile.getLastName()));
+        user.setName("TSET");
+//        user.setUsername(userProfile.getFirstName() + ' ' + (userProfile.getLastName() == null ? "" : userProfile.getLastName()));
+        user.setUsername("test");
 //        user.setEnabled(true);
         user.setPassword(passwordEncoder.encode("bookstorage@bookstorage@" + connection.getKey().getProviderId()));
 //        user.setEmail(connection.getKey().getProviderUserId() + "@" + connection.getKey().getProviderId() + ".tmp.com");
