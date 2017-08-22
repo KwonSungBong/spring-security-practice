@@ -17,3 +17,7 @@ spring:
     username: root
     password: password
     driver-class-name: com.mysql.jdbc.Driver
+
+  resources:
+    cache-period: 0
+    static-locations: file:src/main/resources/static/
