@@ -20,9 +20,6 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false)
-    private Integer age;
-
     @Column(nullable = false, length = 50, unique = true)
     private String username;
 

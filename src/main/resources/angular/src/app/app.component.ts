@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -8,25 +8,44 @@ import { HttpClient } from '@angular/common/http';
 })
 export class AppComponent {
   title = 'app';
+  token;
 
   constructor(private http: HttpClient) {
 
   }
 
-  test() {
-    this.http.get('/auth/test').subscribe(data => {
+  getToken() {
+    this.http.get('/auth/token').subscribe(data => {
+      this.token = data;
+      console.log(this.token);
+    });
+  }
+
+  login() {
+    const body = {};
+
+    this.http.post('/login', body, {
+      headers: new HttpHeaders().set('X-XSRF-TOKEN', this.token.token),
+      params: new HttpParams().set('username', 'user').set('password', 'password'),
+    }).subscribe(data => {
       console.log(data);
     });
   }
 
-  test2() {
-    //this.http
-    //  .post('/api/items/add', body, {
-    //    headers: new HttpHeaders().set('Authorization', 'my-auth-token'),
-    //  })
-    //  .subscribe();
+  logout() {
+    const body = {};
+
+    this.http.post('/logout', body, {
+      headers: new HttpHeaders().set('X-XSRF-TOKEN', this.token.token),
+    }).subscribe(data => {
+      console.log(data);
+    });
   }
 
-  //https://angular.io/guide/http
+  me() {
+    this.http.get('/auth/me').subscribe(data => {
+      console.log(data);
+    });
+  }
 
 }
